@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack Design Blueprint</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Earthy Minimalism (Stone 50 background, Emerald 600/700 primary, Slate 800 text, Amber 100 accents) -->
+    <!-- Application Structure Plan: The SPA uses a dashboard-style side-navigation layout (or top-nav on mobile) to guide the user sequentially through the design thinking process. It transforms a static document into an interactive design presentation. The structure flows from problem definition to user persona, interaction flow, visual wireframes, and final reflections. This allows stakeholders to understand the 'why' before the 'what'. An interactive phone mockup acts as the centerpiece for exploring wireframe concepts without needing external design tools. -->
+    <!-- Visualization & Content Choices: 
+         - Research & Needs -> Goal: Inform & Prioritize -> Viz: Chart.js Doughnut Chart -> Interaction: Hover tooltips -> Justification: Shows the weight of different user needs driving the design -> Method: Chart.js.
+         - User Persona -> Goal: Inform -> Viz: Styled HTML Card -> Interaction: None -> Justification: Emphasizes the human element clearly -> Method: HTML/Tailwind.
+         - User Flow -> Goal: Organize/Process -> Viz: Interactive Timeline/Stepper -> Interaction: Click steps to reveal details -> Justification: Breaks down the user journey into digestible actions -> Method: HTML/JS.
+         - Wireframes -> Goal: Visualize -> Viz: CSS-based Phone Mockup -> Interaction: Click tabs to switch screens -> Justification: Provides a realistic context for low-fidelity layouts without needing image assets -> Method: Custom CSS/HTML/JS.
+         - Reflection -> Goal: Summarize -> Viz: Interactive Accordion -> Interaction: Click to expand -> Justification: Keeps the UI clean while offering deep dives into the methodology -> Method: HTML/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fafaf9; color: #1e293b; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
+        .phone-mockup { border: 12px solid #0f172a; border-radius: 40px; width: 100%; max-width: 320px; height: 650px; background: #ffffff; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); margin: 0 auto; }
+        .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 25px; background: #0f172a; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 50; }
+        .screen-layer { display: none; height: 100%; width: 100%; padding-top: 35px; flex-direction: column; animation: fadeIn 0.3s ease-out forwards; overflow-y: auto;}
+        .screen-layer.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .wireframe-box { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-align: center; color: #64748b; font-weight: 600; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .step-item.active .step-marker { background-color: #059669; color: white; border-color: #059669; }
+        .step-item.active .step-text { font-weight: 700; color: #0f172a; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen w-full">
+
+    <nav class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col z-20 shadow-xl overflow-y-auto">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-2xl font-bold tracking-tight text-emerald-400">♻️ EcoTrack</h1>
+            <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider">Design Blueprint</p>
+        </div>
+        <div class="flex-1 p-4 space-y-2" id="nav-links">
+            <button data-target="section-research" class="nav-btn w-full text-left px-4 py-3 rounded-lg bg-slate-800 text-emerald-300 transition-colors font-medium text-sm flex items-center justify-between">
+                <span>1. Research & Problem</span> <span class="opacity-50">🔍</span>
+            </button>
+            <button data-target="section-persona" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-emerald-300 transition-colors text-slate-300 font-medium text-sm flex items-center justify-between">
+                <span>2. User Persona</span> <span class="opacity-50">👤</span>
+            </button>
+            <button data-target="section-flow" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-emerald-300 transition-colors text-slate-300 font-medium text-sm flex items-center justify-between">
+                <span>3. User Flow</span> <span class="opacity-50">🛤️</span>
+            </button>
+            <button data-target="section-wireframes" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-emerald-300 transition-colors text-slate-300 font-medium text-sm flex items-center justify-between">
+                <span>4. Wireframes</span> <span class="opacity-50">📱</span>
+            </button>
+            <button data-target="section-reflection" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-emerald-300 transition-colors text-slate-300 font-medium text-sm flex items-center justify-between">
+                <span>5. Reflection & Next</span> <span class="opacity-50">🧠</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-1 overflow-y-auto bg-stone-50 relative scroll-smooth" id="main-content">
+        
+        <section id="section-research" class="content-section p-8 md:p-12 min-h-screen border-b border-stone-200">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Research & Problem Definition</h2>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    This section establishes the foundation of the EcoTrack application. By analyzing the core problems users face with municipal recycling, we prioritize the features necessary to build a helpful, user-centric tool. The chart below visualizes the distribution of identified user needs guiding our design.
+                </p>
+
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-stone-100 mb-8">
+                    <h3 class="text-xl font-semibold text-emerald-700 mb-3 flex items-center gap-2"><span>⚠️</span> The Core Problem</h3>
+                    <p class="text-slate-700">Users want to recycle more effectively but are confused by local municipal rules, pick-up schedules, and where to take non-standard items like batteries and electronics.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-4">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-4">Identified User Needs</h3>
+                        <div class="bg-stone-100 p-4 rounded-xl border-l-4 border-emerald-500">
+                            <strong class="block text-slate-800">Clarity</strong>
+                            <span class="text-sm text-slate-600">"What can I put in which bin?"</span>
+                        </div>
+                        <div class="bg-stone-100 p-4 rounded-xl border-l-4 border-emerald-400">
+                            <strong class="block text-slate-800">Reminders</strong>
+                            <span class="text-sm text-slate-600">"When is the next pickup?"</span>
+                        </div>
+                        <div class="bg-stone-100 p-4 rounded-xl border-l-4 border-emerald-300">
+                            <strong class="block text-slate-800">Discovery</strong>
+                            <span class="text-sm text-slate-600">"Where is the nearest glass/e-waste center?"</span>
+                        </div>
+                        <div class="bg-stone-100 p-4 rounded-xl border-l-4 border-emerald-200">
+                            <strong class="block text-slate-800">Motivation</strong>
+                            <span class="text-sm text-slate-600">"Is my effort actually making a difference?"</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
+                        <h4 class="text-center font-medium text-slate-500 mb-4 text-sm uppercase tracking-widest">Needs Priority Distribution</h4>
+                        <div class="chart-container">
+                            <canvas id="needsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-persona" class="content-section p-8 md:p-12 min-h-screen border-b border-stone-200 hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Target User Persona</h2>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    To ensure EcoTrack solves real-world problems, we contextualize our research into a specific persona. Sarah represents our target demographic: environmentally conscious but time-poor urban residents. Her goals directly inform the wireframes we build.
+                </p>
+
+                <div class="bg-white rounded-3xl shadow-md border border-stone-200 overflow-hidden max-w-2xl mx-auto">
+                    <div class="bg-emerald-600 p-8 text-center relative">
+                        <div class="w-24 h-24 bg-emerald-100 rounded-full mx-auto flex items-center justify-center text-4xl shadow-inner mb-4">
+                            👩‍💼
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">Sarah Jenkins</h3>
+                        <p class="text-emerald-100 font-medium">Marketing Manager • Age 32</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h4 class="text-sm uppercase tracking-widest text-slate-400 font-bold mb-3">Goals</h4>
+                                <ul class="space-y-3">
+                                    <li class="flex gap-2 text-slate-700">
+                                        <span class="text-emerald-500">✓</span>
+                                        <span>Wants to reduce household waste footprint.</span>
+                                    </li>
+                                    <li class="flex gap-2 text-slate-700">
+                                        <span class="text-emerald-500">✓</span>
+                                        <span>Needs to bypass lengthy research on city ordinances.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-sm uppercase tracking-widest text-slate-400 font-bold mb-3">Pain Points</h4>
+                                <ul class="space-y-3">
+                                    <li class="flex gap-2 text-slate-700">
+                                        <span class="text-red-400">✗</span>
+                                        <span>Frequently forgets to put bins out on Tuesdays.</span>
+                                    </li>
+                                    <li class="flex gap-2 text-slate-700">
+                                        <span class="text-red-400">✗</span>
+                                        <span>Frustrated by lack of clear signage at communal points.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-flow" class="content-section p-8 md:p-12 min-h-screen border-b border-stone-200 hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Interactive User Flow</h2>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    This interactive timeline maps out the step-by-step journey Sarah takes to achieve a specific goal: finding a specialized drop-off point. Understanding this flow is critical before sketching the wireframes. Click the steps to explore the interaction sequence.
+                </p>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 flex flex-col md:flex-row gap-12">
+                    
+                    <div class="md:w-1/2 relative">
+                        <div class="absolute left-[19px] top-4 bottom-4 w-1 bg-stone-100 z-0"></div>
+                        <div class="space-y-6 relative z-10">
+                            <button class="step-item active w-full text-left flex gap-4 items-start group" onclick="updateFlowDisplay(0)">
+                                <div class="step-marker w-10 h-10 rounded-full border-2 border-slate-300 bg-white text-slate-400 font-bold flex items-center justify-center flex-shrink-0 transition-colors">1</div>
+                                <div class="pt-2">
+                                    <h4 class="step-text text-slate-500 transition-colors">Home Screen</h4>
+                                </div>
+                            </button>
+                            <button class="step-item w-full text-left flex gap-4 items-start group" onclick="updateFlowDisplay(1)">
+                                <div class="step-marker w-10 h-10 rounded-full border-2 border-slate-300 bg-white text-slate-400 font-bold flex items-center justify-center flex-shrink-0 transition-colors">2</div>
+                                <div class="pt-2">
+                                    <h4 class="step-text text-slate-500 transition-colors">Map View</h4>
+                                </div>
+                            </button>
+                            <button class="step-item w-full text-left flex gap-4 items-start group" onclick="updateFlowDisplay(2)">
+                                <div class="step-marker w-10 h-10 rounded-full border-2 border-slate-300 bg-white text-slate-400 font-bold flex items-center justify-center flex-shrink-0 transition-colors">3</div>
+                                <div class="pt-2">
+                                    <h4 class="step-text text-slate-500 transition-colors">Selection</h4>
+                                </div>
+                            </button>
+                            <button class="step-item w-full text-left flex gap-4 items-start group" onclick="updateFlowDisplay(3)">
+                                <div class="step-marker w-10 h-10 rounded-full border-2 border-slate-300 bg-white text-slate-400 font-bold flex items-center justify-center flex-shrink-0 transition-colors">4</div>
+                                <div class="pt-2">
+                                    <h4 class="step-text text-slate-500 transition-colors">Detail Screen</h4>
+                                </div>
+                            </button>
+                            <button class="step-item w-full text-left flex gap-4 items-start group" onclick="updateFlowDisplay(4)">
+                                <div class="step-marker w-10 h-10 rounded-full border-2 border-slate-300 bg-white text-slate-400 font-bold flex items-center justify-center flex-shrink-0 transition-colors">5</div>
+                                <div class="pt-2">
+                                    <h4 class="step-text text-slate-500 transition-colors">Action</h4>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="md:w-1/2">
+                        <div class="bg-stone-50 border border-stone-200 rounded-2xl p-6 h-full flex flex-col justify-center">
+                            <span class="text-4xl mb-4 block" id="flow-icon">🏠</span>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2" id="flow-title">Home Screen</h3>
+                            <p class="text-slate-600 text-lg" id="flow-desc">User launches app and taps "Drop-off Map" from the main navigation grid.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="section-wireframes" class="content-section p-8 md:p-12 min-h-screen border-b border-stone-200 hidden">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Low-Fidelity Wireframes</h2>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed max-w-3xl">
+                    Interact with the device simulator below to review the conceptual layouts. These low-fidelity wireframes focus purely on hierarchy, layout, and functionality without the distraction of final colors or typography. Use the controls to switch between the primary app screens.
+                </p>
+
+                <div class="flex flex-col lg:flex-row gap-12 items-center lg:items-start justify-center">
+                    
+                    <div class="w-full lg:w-1/3 space-y-4">
+                        <h3 class="font-bold text-slate-400 uppercase tracking-widest text-sm mb-4">Select Screen Concept</h3>
+                        <button class="wf-btn w-full p-4 rounded-xl border-2 text-left transition-all border-emerald-600 bg-emerald-50 text-emerald-800" onclick="switchWireframe('screen-a', this)">
+                            <strong class="block text-lg">Screen A: Dashboard</strong>
+                            <span class="text-sm opacity-80">Home screen with pickup alerts and main navigation.</span>
+                        </button>
+                        <button class="wf-btn w-full p-4 rounded-xl border-2 border-transparent bg-white shadow-sm text-slate-600 hover:border-slate-300 text-left transition-all" onclick="switchWireframe('screen-b', this)">
+                            <strong class="block text-lg">Screen B: Drop-off Map</strong>
+                            <span class="text-sm opacity-80">Location search and bottom sheet list view.</span>
+                        </button>
+                        <button class="wf-btn w-full p-4 rounded-xl border-2 border-transparent bg-white shadow-sm text-slate-600 hover:border-slate-300 text-left transition-all" onclick="switchWireframe('screen-c', this)">
+                            <strong class="block text-lg">Screen C: Scanner</strong>
+                            <span class="text-sm opacity-80">AR/Visual item identification tool.</span>
+                        </button>
+                    </div>
+
+                    <div class="w-full lg:w-auto">
+                        <div class="phone-mockup">
+                            <div class="phone-notch"></div>
+                            
+                            <!-- SCREEN A: DASHBOARD -->
+                            <div id="screen-a" class="screen-layer active bg-stone-50 flex">
+                                <div class="px-5 py-3 flex justify-between items-center bg-white border-b border-stone-200">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                        <div class="text-xs font-bold text-slate-800">90210 • Beverly Hills</div>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs">👤</div>
+                                </div>
+                                <div class="p-5 flex-1 space-y-6">
+                                    <!-- Hero Pickup Card -->
+                                    <div class="bg-emerald-600 rounded-2xl p-5 shadow-sm text-white relative overflow-hidden">
+                                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full"></div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="text-2xl">📅</span>
+                                            <h4 class="font-bold text-sm uppercase tracking-wide opacity-90">Upcoming Pickup</h4>
+                                        </div>
+                                        <p class="text-2xl font-black mt-2">Blue Bin (Recycle)</p>
+                                        <p class="text-sm font-medium text-emerald-100 mt-1">Tomorrow, Tue May 12 • 7:00 AM</p>
+                                        <div class="mt-4 flex gap-2">
+                                            <div class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">SET REMINDER</div>
+                                            <div class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">VIEW BINS</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Search Prompt -->
+                                    <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm">
+                                        <span class="text-sm text-slate-400">Search for an item to recycle...</span>
+                                        <span class="text-slate-400">🔍</span>
+                                    </div>
+
+                                    <!-- Grid Navigation -->
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="wireframe-box h-28 flex-col gap-2 group transition-all hover:bg-emerald-50 hover:border-emerald-200">
+                                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">📸</div>
+                                            <span class="text-xs font-bold text-slate-700">Scan Item</span>
+                                        </div>
+                                        <div class="wireframe-box h-28 flex-col gap-2 hover:bg-emerald-50 hover:border-emerald-200">
+                                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">🗺️</div>
+                                            <span class="text-xs font-bold text-slate-700">Drop-off Map</span>
+                                        </div>
+                                        <div class="wireframe-box h-28 flex-col gap-2 hover:bg-emerald-50 hover:border-emerald-200">
+                                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">📈</div>
+                                            <span class="text-xs font-bold text-slate-700">My Impact</span>
+                                        </div>
+                                        <div class="wireframe-box h-28 flex-col gap-2 hover:bg-emerald-50 hover:border-emerald-200">
+                                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">📕</div>
+                                            <span class="text-xs font-bold text-slate-700">Guides</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Streak Section -->
+                                    <div class="bg-stone-100 border border-stone-200 rounded-2xl p-4 flex items-center gap-4">
+                                        <div class="text-3xl">🔥</div>
+                                        <div>
+                                            <h5 class="text-xs font-bold text-slate-800">12 Day Streak!</h5>
+                                            <p class="text-[10px] text-slate-500">Keep up the sustainable habits, Sarah.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Tab Bar -->
+                                <div class="h-20 bg-white border-t border-stone-200 flex justify-around items-center px-4 pb-4">
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-emerald-600 text-xl">🏠</span>
+                                        <span class="text-[9px] font-bold text-emerald-600 uppercase">Home</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-slate-300 text-xl">🗺️</span>
+                                        <span class="text-[9px] font-bold text-slate-300 uppercase">Map</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-slate-300 text-xl">📷</span>
+                                        <span class="text-[9px] font-bold text-slate-300 uppercase">Scan</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-slate-300 text-xl">⚙️</span>
+                                        <span class="text-[9px] font-bold text-slate-300 uppercase">Settings</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SCREEN B: DROP-OFF MAP -->
+                            <div id="screen-b" class="screen-layer bg-stone-200 flex relative">
+                                <!-- Top Search & Filters -->
+                                <div class="absolute top-4 left-4 right-4 z-10 space-y-2">
+                                    <div class="bg-white rounded-xl px-4 py-3 shadow-lg flex items-center gap-3 text-sm text-slate-600 border border-slate-100">
+                                        <span>🔍</span>
+                                        <span class="flex-1">Search for electronics...</span>
+                                        <span class="text-slate-300">|</span>
+                                        <span>🎙️</span>
+                                    </div>
+                                    <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                                        <div class="bg-emerald-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm whitespace-nowrap">ELECTRONICS</div>
+                                        <div class="bg-white text-slate-600 px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm whitespace-nowrap border border-slate-100">GLASS</div>
+                                        <div class="bg-white text-slate-600 px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm whitespace-nowrap border border-slate-100">METAL</div>
+                                        <div class="bg-white text-slate-600 px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm whitespace-nowrap border border-slate-100">HAZARDOUS</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Map Mockup -->
+                                <div class="flex-1 w-full bg-slate-300 flex items-center justify-center relative">
+                                    <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px]"></div>
+                                    <!-- Map Pins -->
+                                    <div class="absolute top-1/3 left-1/4 group cursor-pointer">
+                                        <div class="bg-emerald-600 w-8 h-8 rounded-full rounded-bl-none rotate-45 flex items-center justify-center border-2 border-white shadow-lg">
+                                            <div class="-rotate-45 text-white text-[10px] font-bold">E</div>
+                                        </div>
+                                    </div>
+                                    <div class="absolute top-1/2 left-2/3 group cursor-pointer scale-110">
+                                        <div class="bg-emerald-600 w-8 h-8 rounded-full rounded-bl-none rotate-45 flex items-center justify-center border-2 border-white shadow-2xl">
+                                            <div class="-rotate-45 text-white text-[10px] font-bold">E</div>
+                                        </div>
+                                        <div class="absolute -top-10 -left-8 bg-white px-3 py-1.5 rounded-lg shadow-xl text-[10px] font-bold whitespace-nowrap border border-slate-100">
+                                            City Center E-Waste
+                                        </div>
+                                    </div>
+                                    <div class="bg-white/50 backdrop-blur-md px-6 py-2 rounded-full text-[10px] font-black text-slate-600 uppercase tracking-widest shadow-inner">Map Interface</div>
+                                </div>
+                                
+                                <!-- Bottom Drawer -->
+                                <div class="bg-white rounded-t-[32px] shadow-[0_-15px_30px_rgba(0,0,0,0.15)] p-6 relative z-20 h-72 flex flex-col border-t border-stone-100">
+                                    <div class="w-14 h-1.5 bg-slate-100 rounded-full mx-auto mb-6"></div>
+                                    <div class="flex justify-between items-end mb-4">
+                                        <h4 class="font-black text-slate-800 text-xl">3 Centers Found</h4>
+                                        <span class="text-xs font-bold text-emerald-600 underline">List View</span>
+                                    </div>
+                                    <div class="flex-1 overflow-y-auto space-y-4">
+                                        <div class="flex justify-between items-center p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl">
+                                            <div class="flex gap-3 items-center">
+                                                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold">1</div>
+                                                <div>
+                                                    <strong class="block text-sm text-slate-800">City Center E-Waste</strong>
+                                                    <span class="text-[10px] font-bold text-emerald-600 uppercase">Open • Closes 5 PM</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="block text-xs font-black text-slate-800">0.8 mi</span>
+                                                <span class="text-[10px] text-slate-400">12 min drive</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between items-center p-4 border border-slate-100 rounded-2xl">
+                                            <div class="flex gap-3 items-center opacity-60">
+                                                <div class="w-10 h-10 bg-slate-200 rounded-xl flex items-center justify-center text-slate-500 font-bold">2</div>
+                                                <div>
+                                                    <strong class="block text-sm text-slate-800">Northside Tech</strong>
+                                                    <span class="text-[10px] font-bold text-red-400 uppercase">Closed • Opens 9 AM</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-right opacity-60">
+                                                <span class="block text-xs font-black text-slate-800">2.1 mi</span>
+                                                <span class="text-[10px] text-slate-400">18 min drive</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SCREEN C: SCANNER -->
+                            <div id="screen-c" class="screen-layer bg-slate-950 flex relative text-white">
+                                <!-- HUD Overlay -->
+                                <div class="absolute top-4 left-6 right-6 flex justify-between items-center z-10">
+                                    <div class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">❌</div>
+                                    <div class="px-4 py-1.5 bg-emerald-600/90 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-400/30">Auto-Detect ON</div>
+                                    <div class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">⚡</div>
+                                </div>
+                                
+                                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center relative z-0">
+                                    <!-- Viewfinder -->
+                                    <div class="w-full aspect-square relative max-w-[240px]">
+                                        <!-- Corners -->
+                                        <div class="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-emerald-400 rounded-tl-3xl"></div>
+                                        <div class="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-emerald-400 rounded-tr-3xl"></div>
+                                        <div class="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-emerald-400 rounded-bl-3xl"></div>
+                                        <div class="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-emerald-400 rounded-br-3xl"></div>
+                                        
+                                        <!-- Scanning Animation Line -->
+                                        <div class="absolute top-0 left-4 right-4 h-[2px] bg-emerald-400/50 shadow-[0_0_15px_#10b981] animate-[scan_3s_infinite_ease-in-out]"></div>
+                                        
+                                        <style>
+                                            @keyframes scan {
+                                                0%, 100% { top: 10%; opacity: 0; }
+                                                20% { opacity: 1; }
+                                                80% { opacity: 1; }
+                                                100% { top: 90%; opacity: 0; }
+                                            }
+                                        </style>
+                                        
+                                        <div class="flex items-center justify-center h-full opacity-20">
+                                            <span class="text-6xl">🧴</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-10 space-y-2">
+                                        <p class="text-lg font-black text-white">Scanning Product...</p>
+                                        <p class="text-xs text-slate-400 font-medium max-w-[200px]">Ensure the label is visible within the frame.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Result Panel -->
+                                <div class="bg-white text-slate-800 rounded-t-[40px] p-8 absolute bottom-0 left-0 right-0 shadow-[0_-20px_40px_rgba(0,0,0,0.5)]">
+                                    <div class="flex items-center gap-5 mb-8">
+                                        <div class="w-16 h-16 rounded-2xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-3xl shadow-sm">♻️</div>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="font-black text-xl tracking-tight">Plastic Bottle</h4>
+                                                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-black rounded">#1 PET</span>
+                                            </div>
+                                            <p class="text-sm text-blue-600 font-bold flex items-center gap-1">
+                                                <span>✓</span> RECYCLABLE (BLUE BIN)
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="space-y-3">
+                                        <button class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-900/20 active:scale-[0.98] transition-transform">VIEW RECYCLING GUIDE</button>
+                                        <button class="w-full bg-stone-100 text-slate-500 font-bold py-3 rounded-2xl text-xs uppercase tracking-widest">Mark as Recycled</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-reflection" class="content-section p-8 md:p-12 min-h-screen hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Design Thinking & Next Steps</h2>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    A review of the methodological approach used to reach these wireframes, and the roadmap for translating these low-fidelity concepts into a high-fidelity, tested product.
+                </p>
+
+                <div class="space-y-4 mb-12">
+                    <div class="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                        <button class="w-full px-6 py-4 text-left font-bold text-lg text-slate-800 bg-stone-50 hover:bg-stone-100 flex justify-between items-center transition-colors" onclick="toggleAccordion('acc-1', this)">
+                            Phase 1: Empathize & Define
+                            <span class="transform transition-transform duration-300">▼</span>
+                        </button>
+                        <div id="acc-1" class="accordion-content">
+                            <div class="p-6 text-slate-600 border-t border-stone-100">
+                                <p class="mb-3"><strong>Empathize:</strong> We started by looking at the confusion surrounding multi-stream recycling. Users want to do the right thing but hit friction points due to a lack of immediate, hyper-local information.</p>
+                                <p><strong>Define:</strong> The core value established for the app is "Instant Clarity." Every feature must serve the goal of removing friction from the physical act of recycling.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                        <button class="w-full px-6 py-4 text-left font-bold text-lg text-slate-800 bg-stone-50 hover:bg-stone-100 flex justify-between items-center transition-colors" onclick="toggleAccordion('acc-2', this)">
+                            Phase 2: Ideate & Prototype
+                            <span class="transform transition-transform duration-300">▼</span>
+                        </button>
+                        <div id="acc-2" class="accordion-content">
+                            <div class="p-6 text-slate-600 border-t border-stone-100">
+                                <p class="mb-3"><strong>Ideate:</strong> We prioritized the visual Scanner and Map features over social or community features to keep the MVP focused on pure utility. Utility drives initial adoption.</p>
+                                <p><strong>Prototype:</strong> The low-fidelity wireframes presented here focus heavily on information hierarchy and touch-target placement rather than visual styling. This ensures the structural logic is sound before investing in high-fidelity assets.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-800 rounded-3xl p-8 md:p-12 text-white shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 text-9xl opacity-10 transform translate-x-4 -translate-y-4">🚀</div>
+                    <h3 class="text-2xl font-bold mb-6 relative z-10">Next Steps</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                        <div class="bg-emerald-900/50 p-6 rounded-2xl backdrop-blur-sm border border-emerald-700/50">
+                            <div class="text-3xl mb-3">🧪</div>
+                            <h4 class="font-bold text-emerald-300 mb-2">1. User Testing</h4>
+                            <p class="text-sm text-emerald-100/80">Present these low-fidelity layouts to 5 users to verify if the navigation model is intuitive.</p>
+                        </div>
+                        <div class="bg-emerald-900/50 p-6 rounded-2xl backdrop-blur-sm border border-emerald-700/50">
+                            <div class="text-3xl mb-3">🎨</div>
+                            <h4 class="font-bold text-emerald-300 mb-2">2. High-Fidelity</h4>
+                            <p class="text-sm text-emerald-100/80">Apply a "Green & Clean" UI kit, focusing heavily on accessibility, high contrast, and large tap targets.</p>
+                        </div>
+                        <div class="bg-emerald-900/50 p-6 rounded-2xl backdrop-blur-sm border border-emerald-700/50">
+                            <div class="text-3xl mb-3">🔗</div>
+                            <h4 class="font-bold text-emerald-300 mb-2">3. Prototyping</h4>
+                            <p class="text-sm text-emerald-100/80">Link final screens in a tool like Figma to rigorously test screen transitions and micro-interactions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const sections = document.querySelectorAll('.content-section');
+
+        function switchSection(targetId) {
+            sections.forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(targetId).classList.remove('hidden');
+            
+            navBtns.forEach(btn => {
+                if(btn.dataset.target === targetId) {
+                    btn.classList.add('bg-slate-800', 'text-emerald-300');
+                    btn.classList.remove('text-slate-300');
+                } else {
+                    btn.classList.remove('bg-slate-800', 'text-emerald-300');
+                    btn.classList.add('text-slate-300');
+                }
+            });
+
+            document.getElementById('main-content').scrollTop = 0;
+            
+            if(targetId === 'section-research' && myChart) {
+                myChart.update();
+            }
+        }
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchSection(btn.dataset.target);
+            });
+        });
+
+        const needsData = {
+            labels: ['Clarity', 'Reminders', 'Discovery', 'Motivation'],
+            datasets: [{
+                data: [40, 25, 20, 15],
+                backgroundColor: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        };
+
+        const config = {
+            type: 'doughnut',
+            data: needsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, font: { family: 'Inter', size: 13 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + context.raw + '% priority';
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        let myChart = null;
+        window.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('needsChart');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                myChart = new Chart(ctx, config);
+            }
+        });
+
+        const flowData = [
+            { icon: '🏠', title: 'Home Screen', desc: 'User launches app and taps "Drop-off Map" from the main navigation grid.' },
+            { icon: '🗺️', title: 'Map View', desc: 'User applies the "Electronics" filter via the top search bar overlay.' },
+            { icon: '📍', title: 'Selection', desc: 'User taps a specific map pin labeled "City Center E-Waste" for more details.' },
+            { icon: 'ℹ️', title: 'Detail Screen', desc: 'A bottom sheet slides up showing hours of operation and accepted items.' },
+            { icon: '🧭', title: 'Action', desc: 'User taps "Get Directions" transferring intent to OS mapping service.' }
+        ];
+
+        function updateFlowDisplay(index) {
+            document.querySelectorAll('.step-item').forEach((el, i) => {
+                if (i === index) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+            
+            const displayIcon = document.getElementById('flow-icon');
+            const displayTitle = document.getElementById('flow-title');
+            const displayDesc = document.getElementById('flow-desc');
+            
+            displayIcon.style.opacity = 0;
+            displayTitle.style.opacity = 0;
+            displayDesc.style.opacity = 0;
+
+            setTimeout(() => {
+                displayIcon.textContent = flowData[index].icon;
+                displayTitle.textContent = flowData[index].title;
+                displayDesc.textContent = flowData[index].desc;
+                
+                displayIcon.style.transition = 'opacity 0.3s';
+                displayTitle.style.transition = 'opacity 0.3s';
+                displayDesc.style.transition = 'opacity 0.3s';
+                
+                displayIcon.style.opacity = 1;
+                displayTitle.style.opacity = 1;
+                displayDesc.style.opacity = 1;
+            }, 150);
+        }
+
+        function switchWireframe(screenId, btnElement) {
+            document.querySelectorAll('.screen-layer').forEach(layer => layer.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            document.querySelectorAll('.wf-btn').forEach(btn => {
+                btn.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
+                btn.classList.add('border-transparent', 'bg-white', 'text-slate-600');
+            });
+            btnElement.classList.remove('border-transparent', 'bg-white', 'text-slate-600');
+            btnElement.classList.add('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
+        }
+
+        function toggleAccordion(id, btn) {
+            const content = document.getElementById(id);
+            const icon = btn.querySelector('span');
+            
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.style.transform = 'rotate(-180deg)';
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            const acc1 = document.getElementById('acc-1');
+            if(acc1) {
+                acc1.style.maxHeight = acc1.scrollHeight + "px";
+                acc1.previousElementSibling.querySelector('span').style.transform = 'rotate(-180deg)';
+            }
+        });
+
+    </script>
+</body>
+</html>
